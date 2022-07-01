@@ -106,7 +106,9 @@ class MainActivity : ComponentActivity() {
                     contentDescription = "Back",
                     Modifier.clickable {
                         scope.launch {
-                            drawerState.open()
+                            drawerState.apply {
+                                if (isClosed) open() else close()
+                            }
                         }
                     }
                 )
