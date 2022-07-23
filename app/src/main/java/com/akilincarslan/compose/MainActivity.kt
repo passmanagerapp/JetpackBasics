@@ -1,5 +1,6 @@
 package com.akilincarslan.compose
 
+import android.content.Intent
 import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.ComponentActivity
@@ -8,22 +9,18 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -40,6 +37,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -47,17 +45,71 @@ import com.akilincarslan.compose.ui.theme.ComposeTheme
 import com.akilincarslan.compose.ui.theme.LightGreen
 import kotlinx.coroutines.launch
 import java.util.*
+import kotlin.random.Random
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
             MaterialTheme {
-                LazyRowShop()
+                LazyVerticalGridNumbers()
             }
         }
     }
 
+    @OptIn(ExperimentalFoundationApi::class)
+    @Composable
+    fun LazyVerticalGridNumbers() {
+        val numbers: List<Int> = (1..100).toList()
+        val state = rememberLazyListState()
+        val coroutineState = rememberCoroutineScope()
+        Box(
+            contentAlignment = Alignment.BottomEnd
+        ) {
+            LazyVerticalGrid(
+                cells = GridCells.Adaptive(128.dp),
+                state = state
+            ) {
+                itemsIndexed(numbers) { number, pos ->
+                    NumberContent(number = number, pos)
+                }
+            }
+            FloatingActionButton(
+                onClick = {
+                    coroutineState.launch {
+                        state.scrollToItem(7)
+                    }
+                },
+                modifier = Modifier.padding(12.dp)
+            ) {
+                Icon(
+                    imageVector = if (state.firstVisibleItemIndex == 7) Icons.Default.Done else if (state.firstVisibleItemIndex > 7) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                    contentDescription = ""
+                )
+            }
+        }
+
+    }
+
+    @Composable
+    fun NumberContent(number: Int, position: Int) {
+        Card(
+            modifier = Modifier
+                .height(150.dp)
+                .padding(horizontal = 8.dp, vertical = 4.dp)
+                .fillMaxWidth(),
+            backgroundColor = if (position % 2 == 0) Color.Green else Color.Yellow
+        ) {
+            Text(
+                text = number.toString(),
+                style = MaterialTheme.typography.subtitle2,
+                modifier = Modifier.padding(16.dp),
+                textAlign = TextAlign.Center
+            )
+        }
+    }
+
+    @Preview
     @Composable
     fun LazyRowShop(list: List<Animal> = Animal.dummyAnimalList) {
         Surface() {
@@ -71,6 +123,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class)
     @Composable
     fun AnimalItem(animal: Animal) {
         Card(
@@ -78,7 +131,12 @@ class MainActivity : ComponentActivity() {
                 .padding(horizontal = 8.dp)
                 .size(150.dp, 185.dp),
             elevation = 5.dp,
-            shape = RoundedCornerShape(10.dp)
+            shape = RoundedCornerShape(10.dp),
+            onClick = {
+                val intent = Intent(this, DetailActivity::class.java)
+                intent.putExtra("animal", animal)
+                startActivity(intent)
+            }
         ) {
             AnimalContent(animal)
         }
@@ -89,11 +147,23 @@ class MainActivity : ComponentActivity() {
     fun AnimalContent(animal: Animal) {
         ConstraintLayout() {
             val (image, text) = createRefs()
-            val random = Random()
+            val colorList = listOf<Color>(
+                Color.Magenta,
+                Color.Red,
+                Color.Black,
+                Color.Green,
+                Color.White,
+                Color.LightGray,
+                Color.DarkGray,
+                Color.Gray,
+                Color.Blue,
+                Color.Cyan,
+                Color.Yellow
+            )
             Spacer(
                 modifier = Modifier
                     .height(85.dp)
-                    .background(Color.Magenta)
+                    .background(colorList.random())
                     .fillMaxWidth()
             )
 
@@ -110,6 +180,7 @@ class MainActivity : ComponentActivity() {
                         end.linkTo(parent.end)
                         start.linkTo(parent.start)
                     },
+                contentScale = ContentScale.FillBounds
             )
 
             Text(

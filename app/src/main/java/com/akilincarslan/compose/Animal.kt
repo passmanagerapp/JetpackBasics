@@ -1,10 +1,14 @@
 package com.akilincarslan.compose
 
+import android.os.Parcelable
+import kotlinx.android.parcel.Parcelize
+
+@Parcelize
 data class Animal(
     val imageDrawable: Int,
     val name: String,
     val type: String
-) {
+) :Parcelable {
     companion object {
         val dummyAnimalList = listOf<Animal>(
             Animal(
