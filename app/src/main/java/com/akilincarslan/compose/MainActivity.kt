@@ -18,6 +18,9 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.AccountBox
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -36,11 +39,22 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            HomeScreen()
+            MySootheApp()
         }
     }
 
-    @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2 )
+    @Composable
+    fun MySootheApp() {
+        ComposeTheme {
+            Scaffold(
+                bottomBar = {SootheBottomNavigation()}
+            ) {
+                HomeScreen(Modifier.padding(it))
+            }
+        }
+    }
+
+    @Preview(showBackground = true, backgroundColor = 0xFFF0EAE2)
     @Composable
     fun HomeScreen(modifier: Modifier = Modifier) {
         Column(
@@ -224,6 +238,34 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.height(56.dp)
                 )
             }
+        }
+    }
+
+    @Preview
+    @Composable
+    fun SootheBottomNavigation(modifier: Modifier = Modifier) {
+        BottomNavigation(
+            modifier,
+            backgroundColor = MaterialTheme.colors.background,
+        ) {
+            BottomNavigationItem(
+                selected = true,
+                onClick = {},
+                label = { Text(text = stringResource(id = R.string.bottom_navigation_home)) },
+                icon = {
+                    Icon(imageVector = Icons.Filled.Home, contentDescription = null)
+                }
+            )
+            BottomNavigationItem(
+                selected = false,
+                onClick = {},
+                label = {
+                    Text(text = stringResource(id = R.string.bottom_navigation_profile))
+                },
+                icon = {
+                    Icon(imageVector = Icons.Default.AccountCircle, contentDescription = null)
+                }
+            )
         }
     }
 
